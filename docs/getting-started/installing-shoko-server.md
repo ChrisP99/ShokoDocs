@@ -69,6 +69,102 @@ recommended, as this ensures you stay up-to-date with the latest updates and sec
 installation procedure for your distribution of the Docker Community Edition on
 the [Docker](https://docs.docker.com/install/) homepage.
 
+
+## Baremetal Installation - Ubuntu
+
+:::warning
+This option is **not recommended** as it does not provide automatic updates for Shoko Server. Manual updates must be performed whenever a new version is released.
+:::
+
+### Prerequisites
+- Ubuntu 18.04
+
+### 1. Update Your System
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+### 2. Install Required Dependencies
+```bash
+sudo apt install -y mediainfo librhash-dev
+```
+
+### 3. Install .NET SDK and Runtime
+- Add the Microsoft package repository if it hasn't been added already:
+  ```bash
+  wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+  sudo dpkg -i packages-microsoft-prod.deb
+  sudo apt-get update
+  ```
+- Install the .NET runtime and SDK:
+  ```bash
+  sudo apt-get install -y dotnet-sdk-8.0 aspnetcore-runtime-8.0
+  ```
+
+### 4. Download Shoko Server
+Download the latest release from the [Shoko Server Releases](https://github.com/ShokoAnime/ShokoServer/releases) page or use `wget`:
+```bash
+wget https://github.com/ShokoAnime/ShokoServer/releases/download/vx.x.x/Shoko.CLI_Standalone_linux-x64.zip
+```
+
+### 5. Extract the Downloaded Archive
+```bash
+unzip Shoko.CLI_Standalone_linux-x64.zip -d ShokoServer
+cd ShokoServer
+```
+
+### 6. Make the Shoko.CLI Executable
+```bash
+chmod +x Shoko.CLI
+```
+
+### 7. Run Shoko Server
+```bash
+./Shoko.CLI
+```
+
+### 8. Access the Web Interface
+Open your browser and navigate to:
+```
+http://localhost:8111
+```
+
+### (Optional) Run Shoko Server as a Service
+To run Shoko Server as a background service:
+
+- Create a systemd service file:
+  ```bash
+  sudo nano /etc/systemd/system/shoko.service
+  ```
+- Add the following content:
+  ```ini
+  [Unit]
+  Description=Shoko Server
+  After=network.target
+
+  [Service]
+  Type=simple
+  User=your_username
+  ExecStart=/path/to/ShokoServer/Shoko.CLI
+  WorkingDirectory=/path/to/ShokoServer
+  Restart=always
+
+  [Install]
+  WantedBy=multi-user.target
+  ```
+- Replace `/path/to/ShokoServer` with the actual path to your Shoko Server directory and `your_username` with your Ubuntu username.
+
+- Reload systemd and enable the service:
+  ```bash
+  sudo systemctl daemon-reload
+  sudo systemctl enable shoko
+  sudo systemctl start shoko
+  ```
+- Check the status to ensure it’s running:
+  ```bash
+  sudo systemctl status shoko
+  ```
+
 ## Docker Compose (Recommended)
 
 Docker Compose is automatically included with all recent versions of Docker, so its availability shouldn't be a
